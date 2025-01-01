@@ -548,7 +548,7 @@ def zatca_call(
             frappe.throw("Invoice Number is NOT Valid: " + str(invoice_number))
 
         invoice = xml_tags()
-        invoice, uuid1, sales_invoice_doc = salesinvoice_data(invoice, invoice_number)
+        id, invoice, uuid1, sales_invoice_doc = salesinvoice_data(invoice, invoice_number)
         # Get the company abbreviation
         company_abbr = frappe.db.get_value(
             "Company", {"name": sales_invoice_doc.company}, "abbr"
@@ -662,6 +662,9 @@ def zatca_call(
         else:
             compliance_api_call(uuid1, encoded_hash, signed_xmlfile_name, company_abbr)
             attach_qr_image(qrcodeb64, sales_invoice_doc)
+        
+        frappe.db.set_value("Sales Invoice", sales_invoice_doc.name, "invoice_internal_id", id)
+        frappe.db.set_value("Company", sales_invoice_doc.company, "invoice_counter", id)
 
     except (ValueError, TypeError, KeyError, frappe.ValidationError) as e:
         frappe.log_error(
@@ -700,7 +703,7 @@ def zatca_call_compliance(
         if not frappe.db.exists("Sales Invoice", invoice_number):
             frappe.throw("Invoice Number is NOT Valid: " + str(invoice_number))
         invoice = xml_tags()
-        invoice, uuid1, sales_invoice_doc = salesinvoice_data(invoice, invoice_number)
+        id, invoice, uuid1, sales_invoice_doc = salesinvoice_data(invoice, invoice_number)
         any_item_has_tax_template = any(
             item.item_tax_template for item in sales_invoice_doc.items
         )

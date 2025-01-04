@@ -102,7 +102,6 @@ def tax_data_with_template(invoice, pos_invoice_doc):
             tax_amount_without_retention = round(abs(total_tax), 2)
             cbc_taxamount.text = str(round(tax_amount_without_retention, 2))
 
-        # processed_tax_templates = set()
         tax_category_totals = {}
         for item in pos_invoice_doc.items:
             item_tax_template = frappe.get_doc(
@@ -333,48 +332,6 @@ def item_data(invoice, pos_invoice_doc):
             lineextensionamount = float(cbc_lineextensionamount_1.text)
             taxamount = float(cbc_taxamount_3.text)
             cbc_roundingamount.text = str(round(lineextensionamount + taxamount, 2))
-            # if pos_invoice_doc.currency == "SAR":
-            #     if float(pos_invoice_doc.taxes[0].rate) > 0:
-            #         cbc_roundingamount.text = str(
-            #             abs(
-            #                 round(
-            #                     single_item.base_amount
-            #                     + (item_tax_percentage * single_item.net_amount / 100),
-            #                     2,
-            #                 )
-            #             )
-            #         )
-            #     else:
-            #         cbc_roundingamount.text = str(
-            #             abs(
-            #                 round(
-            #                     single_item.amount
-            #                     + (item_tax_percentage * single_item.amount / 100),
-            #                     2,
-            #                 )
-            #             )
-            #         )
-            # else:
-            #     if float(pos_invoice_doc.taxes[0].rate) > 0:
-            #         cbc_roundingamount.text = str(
-            #             abs(
-            #                 round(
-            #                     single_item.amount
-            #                     + (item_tax_percentage * single_item.net_amount / 100),
-            #                     2,
-            #                 )
-            #             )
-            #         )
-            #     else:
-            #         cbc_roundingamount.text = str(
-            #             abs(
-            #                 round(
-            #                     single_item.amount
-            #                     + (item_tax_percentage * single_item.amount / 100),
-            #                     2,
-            #                 )
-            #             )
-            #         )
             cac_item = ET.SubElement(cac_invoiceline, "cac:Item")
             cbc_name = ET.SubElement(cac_item, "cbc:Name")
             cbc_name.text = single_item.item_code
@@ -525,7 +482,6 @@ def item_data_with_template(invoice, pos_invoice_doc):
             cac_price = ET.SubElement(cac_invoiceline, "cac:Price")
             cbc_priceamount = ET.SubElement(cac_price, "cbc:PriceAmount")
             cbc_priceamount.set("currencyID", pos_invoice_doc.currency)
-            # cbc_PriceAmount.text = str(abs(single_item.base_net_rate))
             company_name = pos_invoice_doc.company
             settings = frappe.get_doc("Company", company_name)
             if settings.custom_submit_line_item_discount_to_zatca != 1:
@@ -547,7 +503,7 @@ def item_data_with_template(invoice, pos_invoice_doc):
 def xml_structuring(invoice):
     """function for xml structuring"""
     try:
-        # xml_declaration = "<?xml version='1.0' encoding='UTF-8'?>\n"
+        
         xml_file_path = frappe.local.site + "/private/files/xml_files.xml"
         tree = ET.ElementTree(invoice)
         with open(xml_file_path, "wb") as file:

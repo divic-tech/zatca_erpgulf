@@ -222,10 +222,6 @@ def invoice_typecode_compliance(invoice, compliance_type):
     # 6 is for compliance test. Standard Debit Note
     # frappe.throw(str("here 5 " + str(compliance_type)))
     try:
-        # cbc_InvoiceTypeCode = ET.SubElement(invoice, "cbc:InvoiceTypeCode")
-        # cbc_InvoiceTypeCode.set("name", "0200000")
-        # cbc_InvoiceTypeCode.text = "388"
-        # return invoice
 
         if compliance_type == "1":  # simplified invoice
             cbc_invoicetypecode = ET.SubElement(invoice, "cbc:InvoiceTypeCode")
@@ -430,8 +426,6 @@ def company_data(invoice, pos_invoice_doc):
     """ "function for company data"""
     try:
         company_doc = frappe.get_doc("Company", pos_invoice_doc.company)
-        # frappe.throw(str(company_doc))
-        # customer_doc = frappe.get_doc("Customer", pos_invoice_doc.customer)
         cac_accountingsupplierparty = ET.SubElement(
             invoice, "cac:AccountingSupplierParty"
         )
@@ -898,7 +892,7 @@ def tax_data(invoice, pos_invoice_doc):
                 taxable_amount_1 = pos_invoice_doc.net_total - pos_invoice_doc.get(
                     "discount_amount", 0.0
                 )
-            # tax_rate = float(pos_invoice_doc.taxes[0].rate)
+            
             tax_amount_without_retention = (
                 taxable_amount_1 * float(pos_invoice_doc.taxes[0].rate) / 100
             )

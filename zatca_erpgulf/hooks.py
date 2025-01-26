@@ -4,6 +4,12 @@ app_publisher = "ERPGulf"
 app_description = "Implementaiton of Saudi E-Invoicing Phase-2 on Frappe ERPNext"
 app_email = "support@ERPGulf.com"
 app_license = "mit"
+
+from frappe import _
+
+from . import __version__ as app_version
+
+
 # required_apps = []
 
 # Includes in <head>
@@ -218,11 +224,13 @@ app_license = "mit"
 doc_events = {
     "Sales Invoice": {
         "before_cancel": "zatca_erpgulf.zatca_erpgulf.validations.before_save",
+        "before_submit": "zatca_erpgulf.zatca_erpgulf.tax_error.validate_sales_invoice_taxes",
         "after_insert": "zatca_erpgulf.zatca_erpgulf.validations.duplicating_invoice",
        # "on_submit": "zatca_erpgulf.zatca_erpgulf.sign_invoice.zatca_background_on_submit",
     },
     "POS Invoice": {
         "before_cancel": "zatca_erpgulf.zatca_erpgulf.validations.before_save",
+        "before_submit": "zatca_erpgulf.zatca_erpgulf.tax_error.validate_sales_invoice_taxes",
         "after_insert": "zatca_erpgulf.zatca_erpgulf.validations.duplicating_invoice",
         # "on_submit": "zatca_erpgulf.zatca_erpgulf.pos_sign.zatca_background_on_submit",
     },

@@ -70,7 +70,7 @@ def get_csr_data_multiple(zatca_doc):
         return csr_values
 
     except (frappe.ValidationError, frappe.DoesNotExistError) as e:
-        frappe.throw(f"Error in fetching CSR data: {e}")
+        frappe.throw(f"Error in fetching CSR data multipe: {e}")
         return None
 
 
@@ -181,7 +181,6 @@ def create_csr(zatca_doc, portal_type, company_abbr):
 
         # Fetch the document based on doctype and name
         doc = frappe.get_doc(zatca_doc.get("doctype"), zatca_doc.get("name"))
-        # frappe.throw(doc)
         # Fetch CSR data based on document type
         if doc.doctype == "Zatca Multiple Setting":
             csr_values = get_csr_data_multiple(doc)
@@ -342,7 +341,7 @@ def create_csid(zatca_doc, company_abbr):
             # frappe.msgprint(f"Using OTP (Company): {csr_values}")
         else:
             frappe.throw("Unsupported document type for CSR creation.")
-        
+
         csr_contents = csr_data_str.strip()
 
         if not csr_contents:
@@ -612,7 +611,7 @@ def extract_certificate_details(company_abbr, source_doc):
             frappe.throw(f"Company with abbreviation {company_abbr} not found.")
 
         company_doc = frappe.get_doc("Company", company_name)
-        
+
         if source_doc:
             if source_doc.doctype == "Sales Invoice" or source_doc.doctype == "Company":
                 # Use certificate from the company document for Sales Invoice
@@ -668,7 +667,7 @@ def certificate_hash(company_abbr, source_doc):
             frappe.throw(f"Company with abbreviation {company_abbr} not found.")
 
         company_doc = frappe.get_doc("Company", company_name)
-        
+
         if source_doc:
             if source_doc.doctype == "Sales Invoice" or source_doc.doctype == "Company":
                 # Use certificate from the company document for Sales Invoice
@@ -736,7 +735,7 @@ def signxml_modify(company_abbr, source_doc):
             "xades": "http://uri.etsi.org/01903/v1.3.2#",
             "ds": "http://www.w3.org/2000/09/xmldsig#",
         }
-        
+
         xpath_dv = "ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/sig:UBLDocumentSignatures/sac:SignatureInformation/ds:Signature/ds:Object/xades:QualifyingProperties/xades:SignedProperties/xades:SignedSignatureProperties/xades:SigningCertificate/xades:Cert/xades:CertDigest/ds:DigestValue"
         xpath_signtime = "ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/sig:UBLDocumentSignatures/sac:SignatureInformation/ds:Signature/ds:Object/xades:QualifyingProperties/xades:SignedProperties/xades:SignedSignatureProperties/xades:SigningTime"
         xpath_issuername = "ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/sig:UBLDocumentSignatures/sac:SignatureInformation/ds:Signature/ds:Object/xades:QualifyingProperties/xades:SignedProperties/xades:SignedSignatureProperties/xades:SigningCertificate/xades:Cert/xades:IssuerSerial/ds:X509IssuerName"
@@ -822,7 +821,7 @@ def populate_the_ubl_extensions_output(
             frappe.throw(f"Company with abbreviation {company_abbr} not found.")
 
         company_doc = frappe.get_doc("Company", company_name)
-        
+
         if source_doc:
             if source_doc.doctype == "Sales Invoice" or source_doc.doctype == "Company":
                 # Use certificate from the company document for Sales Invoice
@@ -1175,9 +1174,12 @@ def structuring_signedxml():
         return None
 
 
-def compliance_api_call(uuid1, encoded_hash, signed_xmlfile_name, company_abbr):
+def compliance_api_call(
+    uuid1, encoded_hash, signed_xmlfile_name, company_abbr, source_doc
+):
     """compliance api call for testing with sandbox"""
     try:
+
         company_name = frappe.db.get_value("Company", {"abbr": company_abbr}, "name")
         if not company_name:
             frappe.throw(f"Company with abbreviation {company_abbr} not found.")
@@ -1191,7 +1193,17 @@ def compliance_api_call(uuid1, encoded_hash, signed_xmlfile_name, company_abbr):
             }
         )
 
-        csid = company_doc.custom_basic_auth_from_csid
+        # csid = company_doc.custom_basic_auth_from_csid
+        if (
+            hasattr(source_doc, "custom_zatca_pos_name")
+            and source_doc.custom_zatca_pos_name
+        ):
+            zatca_settings = frappe.get_doc(
+                "Zatca Multiple Setting", source_doc.custom_zatca_pos_name
+            )
+            csid = zatca_settings.custom_basic_auth_from_csid
+        else:
+            csid = company_doc.custom_basic_auth_from_csid
         if not csid:
             frappe.throw((f"CSID for company {company_abbr} not found"))
 
@@ -1231,10 +1243,10 @@ def compliance_api_call(uuid1, encoded_hash, signed_xmlfile_name, company_abbr):
 def production_csid(zatca_doc, company_abbr):
     """production csid button and api"""
     try:
-        
+
         if isinstance(zatca_doc, str):
             zatca_doc = json.loads(zatca_doc)
-        
+
         if (
             not isinstance(zatca_doc, dict)
             or "doctype" not in zatca_doc
@@ -1260,7 +1272,7 @@ def production_csid(zatca_doc, company_abbr):
 
         if not csid:
             frappe.throw(("CSID for company not found"))
-        
+
         if not request_id:
             frappe.throw("Compliance request ID for company  not found")
         payload = {"compliance_request_id": request_id}

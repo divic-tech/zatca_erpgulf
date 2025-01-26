@@ -20,6 +20,11 @@ from zatca_erpgulf.zatca_erpgulf.posxml import (
 )
 
 
+ITEM_TAX_TEMPLATE = "Item Tax Template"
+CAC_TAX_TOTAL = "cac:TaxTotal"
+CBC_TAX_AMOUNT = "cbc:TaxAmount"
+
+
 def tax_data_with_template(invoice, pos_invoice_doc):
     """ "function for tax data with template"""
     try:
@@ -27,7 +32,7 @@ def tax_data_with_template(invoice, pos_invoice_doc):
         tax_category_totals = {}
         for item in pos_invoice_doc.items:
             item_tax_template = frappe.get_doc(
-                "Item Tax Template", item.item_tax_template
+                ITEM_TAX_TEMPLATE, item.item_tax_template
             )
             zatca_tax_category = item_tax_template.custom_zatca_tax_category
 
@@ -74,30 +79,30 @@ def tax_data_with_template(invoice, pos_invoice_doc):
 
         # For SAR currency
         if pos_invoice_doc.currency == "SAR":
-            cac_taxtotal = ET.SubElement(invoice, "cac:TaxTotal")
-            cbc_taxamount_sar = ET.SubElement(cac_taxtotal, "cbc:TaxAmount")
+            cac_taxtotal = ET.SubElement(invoice, CAC_TAX_TOTAL)
+            cbc_taxamount_sar = ET.SubElement(cac_taxtotal, CBC_TAX_AMOUNT)
             cbc_taxamount_sar.set(
                 "currencyID", "SAR"
             )  # SAR is as ZATCA requires tax amount in SAR
             tax_amount_without_retention_sar = round(abs(total_tax), 2)
             cbc_taxamount_sar.text = str(round(tax_amount_without_retention_sar, 2))
 
-            cac_taxtotal = ET.SubElement(invoice, "cac:TaxTotal")
-            cbc_taxamount = ET.SubElement(cac_taxtotal, "cbc:TaxAmount")
+            cac_taxtotal = ET.SubElement(invoice, CAC_TAX_TOTAL)
+            cbc_taxamount = ET.SubElement(cac_taxtotal, CBC_TAX_AMOUNT)
             cbc_taxamount.set("currencyID", pos_invoice_doc.currency)
             tax_amount_without_retention = round(abs(total_tax), 2)
             cbc_taxamount.text = str(round(tax_amount_without_retention, 2))
         else:
-            cac_taxtotal = ET.SubElement(invoice, "cac:TaxTotal")
-            cbc_taxamount_sar = ET.SubElement(cac_taxtotal, "cbc:TaxAmount")
+            cac_taxtotal = ET.SubElement(invoice, CAC_TAX_TOTAL)
+            cbc_taxamount_sar = ET.SubElement(cac_taxtotal, CBC_TAX_AMOUNT)
             cbc_taxamount_sar.set(
                 "currencyID", pos_invoice_doc.currency
             )  # SAR is as ZATCA requires tax amount in SAR
             tax_amount_without_retention_sar = round(abs(total_tax), 2)
             cbc_taxamount_sar.text = str(round(tax_amount_without_retention_sar, 2))
 
-            cac_taxtotal = ET.SubElement(invoice, "cac:TaxTotal")
-            cbc_taxamount = ET.SubElement(cac_taxtotal, "cbc:TaxAmount")
+            cac_taxtotal = ET.SubElement(invoice, CAC_TAX_TOTAL)
+            cbc_taxamount = ET.SubElement(cac_taxtotal, CBC_TAX_AMOUNT)
             cbc_taxamount.set("currencyID", pos_invoice_doc.currency)
             tax_amount_without_retention = round(abs(total_tax), 2)
             cbc_taxamount.text = str(round(tax_amount_without_retention, 2))
@@ -105,7 +110,7 @@ def tax_data_with_template(invoice, pos_invoice_doc):
         tax_category_totals = {}
         for item in pos_invoice_doc.items:
             item_tax_template = frappe.get_doc(
-                "Item Tax Template", item.item_tax_template
+                ITEM_TAX_TEMPLATE, item.item_tax_template
             )
             zatca_tax_category = item_tax_template.custom_zatca_tax_category
 
@@ -136,7 +141,7 @@ def tax_data_with_template(invoice, pos_invoice_doc):
 
         for item in pos_invoice_doc.items:
             item_tax_template = frappe.get_doc(
-                "Item Tax Template", item.item_tax_template
+                ITEM_TAX_TEMPLATE, item.item_tax_template
             )
             zatca_tax_category = item_tax_template.custom_zatca_tax_category
 
@@ -168,7 +173,7 @@ def tax_data_with_template(invoice, pos_invoice_doc):
             cbc_taxableamount.set("currencyID", pos_invoice_doc.currency)
             cbc_taxableamount.text = str(totals["taxable_amount"])
 
-            cbc_taxamount_2 = ET.SubElement(cac_taxsubtotal, "cbc:TaxAmount")
+            cbc_taxamount_2 = ET.SubElement(cac_taxsubtotal, CBC_TAX_AMOUNT)
             cbc_taxamount_2.set("currencyID", pos_invoice_doc.currency)
             cbc_taxamount_2.text = str(round(totals["tax_amount"], 2))
 
@@ -262,7 +267,7 @@ def tax_data_with_template(invoice, pos_invoice_doc):
         return invoice
 
     except (AttributeError, KeyError, ValueError, TypeError) as e:
-        frappe.throw(f"Data processing error in tax data: {str(e)}")
+        frappe.throw(f"Data processing error in tax data with template: {str(e)}")
 
 
 def item_data(invoice, pos_invoice_doc):
@@ -292,7 +297,6 @@ def item_data(invoice, pos_invoice_doc):
             taxes_template_doc = frappe.get_doc(
                 "Sales Taxes and Charges Template", taxes_and_charges
             )
-
             tax_rate = taxes_template_doc.taxes[0]
             if pos_invoice_doc.currency == "SAR":
                 if tax_rate.included_in_print_rate == 0:
@@ -321,8 +325,8 @@ def item_data(invoice, pos_invoice_doc):
                             )
                         )
                     )
-            cac_taxtotal_2 = ET.SubElement(cac_invoiceline, "cac:TaxTotal")
-            cbc_taxamount_3 = ET.SubElement(cac_taxtotal_2, "cbc:TaxAmount")
+            cac_taxtotal_2 = ET.SubElement(cac_invoiceline, CAC_TAX_TOTAL)
+            cbc_taxamount_3 = ET.SubElement(cac_taxtotal_2, CBC_TAX_AMOUNT)
             cbc_taxamount_3.set("currencyID", pos_invoice_doc.currency)
             cbc_taxamount_3.text = str(
                 abs(round(item_tax_percentage * single_item.net_amount / 100, 2))
@@ -407,7 +411,7 @@ def item_data(invoice, pos_invoice_doc):
 
         return invoice
     except (AttributeError, KeyError, ValueError, TypeError) as e:
-        frappe.throw(f"Data processing error in tax data: {str(e)}")
+        frappe.throw(f"Data processing error in item data: {str(e)}")
 
 
 def item_data_with_template(invoice, pos_invoice_doc):
@@ -415,7 +419,7 @@ def item_data_with_template(invoice, pos_invoice_doc):
     try:
         for single_item in pos_invoice_doc.items:
             item_tax_template = frappe.get_doc(
-                "Item Tax Template", single_item.item_tax_template
+                ITEM_TAX_TEMPLATE, single_item.item_tax_template
             )
             item_tax_percentage = (
                 item_tax_template.taxes[0].tax_rate if item_tax_template.taxes else 15
@@ -435,8 +439,8 @@ def item_data_with_template(invoice, pos_invoice_doc):
             cbc_lineextensionamount_1.set("currencyID", pos_invoice_doc.currency)
             cbc_lineextensionamount_1.text = str(abs(single_item.amount))
 
-            cac_taxtotal_2 = ET.SubElement(cac_invoiceline, "cac:TaxTotal")
-            cbc_taxamount_3 = ET.SubElement(cac_taxtotal_2, "cbc:TaxAmount")
+            cac_taxtotal_2 = ET.SubElement(cac_invoiceline, CAC_TAX_TOTAL)
+            cbc_taxamount_3 = ET.SubElement(cac_taxtotal_2, CBC_TAX_AMOUNT)
             cbc_taxamount_3.set("currencyID", pos_invoice_doc.currency)
             cbc_taxamount_3.text = str(
                 abs(round(item_tax_percentage * single_item.amount / 100, 2))
@@ -497,13 +501,13 @@ def item_data_with_template(invoice, pos_invoice_doc):
 
         return invoice
     except (AttributeError, KeyError, ValueError, TypeError) as e:
-        frappe.throw(f"Data processing error in tax data: {str(e)}")
+        frappe.throw(f"Data processing error in item tax with template data: {str(e)}")
 
 
 def xml_structuring(invoice):
     """function for xml structuring"""
     try:
-        
+
         xml_file_path = frappe.local.site + "/private/files/xml_files.xml"
         tree = ET.ElementTree(invoice)
         with open(xml_file_path, "wb") as file:

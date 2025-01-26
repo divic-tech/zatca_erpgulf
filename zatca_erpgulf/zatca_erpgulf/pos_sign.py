@@ -58,6 +58,14 @@ from zatca_erpgulf.zatca_erpgulf.sign_invoice_first import (
     update_qr_toxml,
     compliance_api_call,
 )
+from zatca_erpgulf.zatca_erpgulf.pos_submit_with_xml_qr import submit_pos_withxmlqr
+from zatca_erpgulf.zatca_erpgulf.pos_submit__without_xml import (
+    zatca_call_pos_without_xml,
+)
+
+ITEM_TAX_TEMPLATE_WARNING = "If any one item has an Item Tax Template,"
+" all items must have an Item Tax Template."
+CONTENT_TYPE_JSON = "application/json"
 
 
 def reporting_api(
@@ -96,12 +104,12 @@ def reporting_api(
 
         if production_csid:
             headers = {
-                "accept": "application/json",
+                "accept": CONTENT_TYPE_JSON,
                 "accept-language": "en",
                 "Clearance-Status": "0",
                 "Accept-Version": "V2",
                 "Authorization": "Basic " + production_csid,
-                "Content-Type": "application/json",
+                "Content-Type": CONTENT_TYPE_JSON,
                 "Cookie": (
                     "TS0106293e=0132a679c0639d13d069bcba831384623a2ca6da47fac8d91bef610c47c7119d"
                     "cdd3b817f963ec301682dae864351c67ee3a402866"
@@ -305,12 +313,12 @@ def clearance_api(
 
         if production_csid:
             headers = {
-                "accept": "application/json",
+                "accept": CONTENT_TYPE_JSON,
                 "accept-language": "en",
                 "Clearance-Status": "1",
                 "Accept-Version": "V2",
                 "Authorization": "Basic " + production_csid,
-                "Content-Type": "application/json",
+                "Content-Type": CONTENT_TYPE_JSON,
                 "Cookie": (
                     "TS0106293e=0132a679c03c628e6c49de86c0f6bb76390abb4416868d6368d6d7c05da619c8"
                     "326266f5bc262b7c0c65a6863cd3b19081d64eee99"
@@ -585,7 +593,9 @@ def zatca_call(
                 )
                 attach_qr_image(qrcodeb64, pos_invoice_doc)
         else:
-            compliance_api_call(uuid1, encoded_hash, signed_xmlfile_name, company_abbr)
+            compliance_api_call(
+                uuid1, encoded_hash, signed_xmlfile_name, company_abbr, source_doc
+            )
             attach_qr_image(qrcodeb64, pos_invoice_doc)
 
     except (ValueError, KeyError, TypeError, frappe.ValidationError) as e:
@@ -641,10 +651,7 @@ def zatca_call_compliance(
         if any_item_has_tax_template and not all(
             item.item_tax_template for item in pos_invoice_doc.items
         ):
-            frappe.throw(
-                "If any one item has an Item Tax Template,"
-                " all items must have an Item Tax Template."
-            )
+            frappe.throw(ITEM_TAX_TEMPLATE_WARNING)
 
         invoice = invoice_typecode_compliance(invoice, compliance_type)
         invoice = doc_reference_compliance(
@@ -718,7 +725,9 @@ def zatca_call_compliance(
         signed_xmlfile_name = structuring_signedxml()
 
         # Make the compliance API call
-        compliance_api_call(uuid1, encoded_hash, signed_xmlfile_name, company_abbr)
+        compliance_api_call(
+            uuid1, encoded_hash, signed_xmlfile_name, company_abbr, source_doc
+        )
 
     except (ValueError, KeyError, TypeError, frappe.ValidationError) as e:
         frappe.log_error(
@@ -749,10 +758,7 @@ def zatca_background_(invoice_number, source_doc):
         if any_item_has_tax_template and not all(
             item.item_tax_template for item in pos_invoice_doc.items
         ):
-            frappe.throw(
-                "If any one item has an Item Tax Template,"
-                " all items must have an Item Tax Template."
-            )
+            frappe.throw(ITEM_TAX_TEMPLATE_WARNING)
 
         pos_profile = pos_invoice_doc.pos_profile
         if not pos_profile:
@@ -833,10 +839,23 @@ def zatca_background_(invoice_number, source_doc):
                 "Please contact your system administrator"
             )
 
+        # if settings.custom_phase_1_or_2 == "Phase-2":
         if settings.custom_phase_1_or_2 == "Phase-2":
-            zatca_call(
-                invoice_number, "0", any_item_has_tax_template, company_abbr, source_doc
-            )
+            if pos_invoice_doc.custom_unique_id:
+                if pos_invoice_doc.custom_xml:
+                    # Set the custom XML field
+                    custom_xml_field = pos_invoice_doc.custom_xml
+                    submit_pos_withxmlqr(
+                        pos_invoice_doc, custom_xml_field, invoice_number
+                    )
+            else:
+                zatca_call(
+                    invoice_number,
+                    "0",
+                    any_item_has_tax_template,
+                    company_abbr,
+                    source_doc,
+                )
         else:
             create_qr_code(pos_invoice_doc, method=None)
 
@@ -871,10 +890,7 @@ def zatca_background_on_submit(doc, _method=None):
         if any_item_has_tax_template:
             for item in pos_invoice_doc.items:
                 if not item.item_tax_template:
-                    frappe.throw(
-                        "If any one item has an Item Tax Template,"
-                        " all items must have an Item Tax Template."
-                    )
+                    frappe.throw(ITEM_TAX_TEMPLATE_WARNING)
 
         pos_profile = pos_invoice_doc.pos_profile
         if not pos_profile:
@@ -960,11 +976,41 @@ def zatca_background_on_submit(doc, _method=None):
 
         # Retrieve the company document to access settings
         settings = frappe.get_doc("Company", company_name)
+        # if settings.custom_phase_1_or_2 == "Phase-2":
+        #     zatca_call(
+        #         invoice_number, "0", any_item_has_tax_template, company_abbr, source_doc
+        #     )
+        # else:
+        #     create_qr_code(pos_invoice_doc, method=None)
+        settings = frappe.get_doc("Company", company_name)
+
         if settings.custom_phase_1_or_2 == "Phase-2":
-            zatca_call(
-                invoice_number, "0", any_item_has_tax_template, company_abbr, source_doc
-            )
+            if pos_invoice_doc.custom_unique_id:
+                if pos_invoice_doc.custom_xml:
+                    # Set the custom XML field
+                    custom_xml_field = pos_invoice_doc.custom_xml
+                    submit_pos_withxmlqr(
+                        pos_invoice_doc, custom_xml_field, invoice_number
+                    )
+                else:
+                    zatca_call_pos_without_xml(
+                        invoice_number,
+                        "0",
+                        any_item_has_tax_template,
+                        company_abbr,
+                        source_doc,
+                    )
+            else:
+                # Handle the case where custom_unique_id is missing
+                zatca_call(
+                    invoice_number,
+                    "0",
+                    any_item_has_tax_template,
+                    company_abbr,
+                    source_doc,
+                )
         else:
+            # If not Phase-2, create a QR code
             create_qr_code(pos_invoice_doc, method=None)
 
     except (ValueError, KeyError, TypeError, frappe.ValidationError) as e:

@@ -53,7 +53,7 @@ def billing_reference_for_credit_and_debit_note(invoice, sales_invoice_doc):
         )
         cbc_id13 = ET.SubElement(cac_invoicedocumentreference, CBC_ID)
         cbc_id13.text = (
-            sales_invoice_doc.return_against
+            sales_invoice_doc.custom_against_number
         )  # field from return against invoice.
 
         return invoice
@@ -206,9 +206,11 @@ def salesinvoice_data(invoice, invoice_number):
 
         cbc_profile_id = ET.SubElement(invoice, "cbc:ProfileID")
         cbc_profile_id.text = "reporting:1.0"
-
         cbc_id = ET.SubElement(invoice, CBC_ID)
-        cbc_id.text = str(sales_invoice_doc.name)
+        invoice_id = (frappe.db.get_value("Company", sales_invoice_doc.company, "invoice_counter") or 0) + 1
+
+        cbc_id.text = str(invoice_id)
+
 
         cbc_uuid = ET.SubElement(invoice, "cbc:UUID")
         cbc_uuid.text = str(uuid.uuid1())
@@ -220,7 +222,7 @@ def salesinvoice_data(invoice, invoice_number):
         cbc_issue_time = ET.SubElement(invoice, "cbc:IssueTime")
         cbc_issue_time.text = get_issue_time(invoice_number)
 
-        return invoice, uuid1, sales_invoice_doc
+        return invoice_id ,invoice, uuid1, sales_invoice_doc
     except (AttributeError, ValueError, frappe.ValidationError) as e:
         frappe.throw(("Error occurred in SalesInvoice data: " f"{str(e)}"))
         return None

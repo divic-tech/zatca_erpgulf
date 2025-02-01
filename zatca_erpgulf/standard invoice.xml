@@ -1,92 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-         xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
-    
-    <cbc:ID>ACC-SINV-2025-00008</cbc:ID>
-    <cbc:UUID>4e74f07a-b97b-4621-8581-459f9a5985e1</cbc:UUID>
-    <cbc:IssueDate>2025-01-29</cbc:IssueDate>
-    <cbc:IssueTime>21:06:44</cbc:IssueTime>
-    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
-    
-    <cac:AccountingSupplierParty>
-        <cac:Party>
-            <cbc:EndpointID schemeID="VAT">302200763700003</cbc:EndpointID>
-            <cac:PartyName>
-                <cbc:Name>أبو بكر الصديق</cbc:Name>
-            </cac:PartyName>
-            <cac:PostalAddress>
-                <cbc:StreetName>2856</cbc:StreetName>
-                <cbc:CityName>المنطقة الشرقية</cbc:CityName>
-                <cbc:PostalZone>39913</cbc:PostalZone>
-                <cbc:CountrySubentity>حفر الباطن</cbc:CountrySubentity>
-                <cac:Country>
-                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
-                </cac:Country>
-            </cac:PostalAddress>
-            <cac:PartyTaxScheme>
-                <cbc:CompanyID>302200763700003</cbc:CompanyID>
-                <cbc:TaxScheme>
-                    <cbc:ID>VAT</cbc:ID>
-                </cbc:TaxScheme>
-            </cac:PartyTaxScheme>
-        </cac:Party>
-    </cac:AccountingSupplierParty>
-    
-    <cac:AccountingCustomerParty>
-        <cac:Party>
-            <cbc:Name>ثامر فيصل فايد الحربي</cbc:Name>
-            <cac:PostalAddress>
-                <cbc:PostalZone>39913</cbc:PostalZone>
-            </cac:PostalAddress>
-        </cac:Party>
-    </cac:AccountingCustomerParty>
-    
-    <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="SAR">473.04</cbc:LineExtensionAmount>
-        <cbc:TaxExclusiveAmount currencyID="SAR">473.04</cbc:TaxExclusiveAmount>
-        <cbc:TaxInclusiveAmount currencyID="SAR">544.00</cbc:TaxInclusiveAmount>
-        <cbc:AllowanceTotalAmount currencyID="SAR">0.00</cbc:AllowanceTotalAmount>
-        <cbc:PayableAmount currencyID="SAR">544.00</cbc:PayableAmount>
-    </cac:LegalMonetaryTotal>
-    
-    <cac:TaxTotal>
-        <cbc:TaxAmount currencyID="SAR">70.96</cbc:TaxAmount>
-        <cac:TaxSubtotal>
-            <cbc:TaxableAmount currencyID="SAR">473.04</cbc:TaxableAmount>
-            <cbc:TaxAmount currencyID="SAR">70.96</cbc:TaxAmount>
-            <cbc:Percent>15.0</cbc:Percent>
-            <cac:TaxCategory>
-                <cac:TaxScheme>
-                    <cbc:ID>VAT</cbc:ID>
-                </cac:TaxScheme>
-            </cac:TaxCategory>
-        </cac:TaxSubtotal>
-    </cac:TaxTotal>
-    
-    <cac:InvoiceLine>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="S">1.0</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">473.04</cbc:LineExtensionAmount>
-        <cac:TaxTotal>
-            <cbc:TaxAmount currencyID="SAR">70.96</cbc:TaxAmount>
-            <cac:TaxSubtotal>
-                <cbc:TaxableAmount currencyID="SAR">473.04</cbc:TaxableAmount>
-                <cbc:TaxAmount currencyID="SAR">70.96</cbc:TaxAmount>
-                <cbc:Percent>15.0</cbc:Percent>
-                <cac:TaxCategory>
-                    <cac:TaxScheme>
-                        <cbc:ID>VAT</cbc:ID>
-                    </cac:TaxScheme>
-                </cac:TaxCategory>
-            </cac:TaxSubtotal>
-        </cac:TaxTotal>
-        <cac:Item>
-            <cbc:Name>Discount</cbc:Name>
-        </cac:Item>
-        <cac:Price>
-            <cbc:PriceAmount currencyID="SAR">544.00</cbc:PriceAmount>
-        </cac:Price>
-    </cac:InvoiceLine>
+<Invoice xmlns:ubl="urn:oasis:names:specification:ubl:signature:Invoice"
+         xmlns:dsig="urn:oasis:names:specification:ubl:dsig:enveloped:xades">
+    <Signature>
+        <SignatureMethod>urn:oasis:names:specification:ubl:signature:1</SignatureMethod>
+        <Digest>
+            <Algorithm>not(//ancestor-or-self::ext:UBLExtensions)</Algorithm>
+            <Algorithm>not(//ancestor-or-self::cac:Signature)</Algorithm>
+            <Algorithm>not(//ancestor-or-self::cac:AdditionalDocumentReference[cbc:ID='QR'])</Algorithm>
+        </Digest>
+        <SignedInfo>
+            <CanonicalizationMethod>bBLsgsBCrGwkXHv2UEdcjRSVLnXqkKM7vxeXnjHg7ng=</CanonicalizationMethod>
+            <SignatureValue>NzdlZWZmNjRmNGMzZDM0ZGRkOTNkOGNhMDQ0YzM3MjkxYzU1N2QxMTljZWY0ZWMyNmU2YTQ5ZWU5OTQwZWE5ZA==</SignatureValue>
+        </SignedInfo>
+        <KeyInfo>
+            <KeyValue>MEUCIQD1alE8mzx6oiEBoWjtQed+z788tkYtLwf4YTyOmiLtKQIgH2ltF9rAG2BS4ntqWoCwHy0M/EIM+ugKSXaGqV0ktSI=</KeyValue>
+        </KeyInfo>
+    </Signature>
+    <Certificate>
+        <Issuer>
+            <CommonName>CN=PRZEINVOICESCA4-CA</CommonName>
+            <OrganizationUnit>extgazt</OrganizationUnit>
+            <Organization>gov</Organization>
+            <Country>local</Country>
+        </Issuer>
+        <ValidFrom>2025-01-30T10:58:08</ValidFrom>
+        <ValidTo>2025-01-30T12:22:23</ValidTo>
+        <SerialNumber>379112742831380471835263969587287663520528387</SerialNumber>
+    </Certificate>
+    <Transaction>
+        <ID>f0cf2c04-dedf-11ef-960a-0242ac110018</ID>
+        <Date>2025-01-30</Date>
+        <Time>12:22:23</Time>
+        <Amount currency="SAR">388</Amount>
+        <ICV>01129</ICV>
+        <PIH>9+JbwuULOHwQSR79CDw+rbFDrRgF4LWvDqnfUeUWeXQ=</PIH>
+    </Transaction>
+    <QRData>
+        <QR>ATPZhdik2LPYs9ipINmI2YXYttipINin2YTYp9mG2KfYsdipINin2YTYqtis2KfYsdmK2KkCDzM5OTk5OTk5OTkwMDAwMwMTMjAyNS0wMS0zMFQxMjoyMjoyMwQHMjMxMC4wMQUGMzAxLjMxBixiQkxzZ3NCQ3JHd2tYSHYyVUVkY2pSU1ZMblhxa0tNN3Z4ZVhuakhnN25nPQ==</QR>
+    </QRData>
+    <Seller>
+        <Name>مؤسسة ومضة الانارة التجارية</Name>
+        <VATNumber>399999999900003</VATNumber>
+        <Branch>
+            <BranchName>ومضه الاناره - حفر الباطن-01074</BranchName>
+            <Location>طريق الملك سلمان بن عبدالعزيز</Location>
+            <PostalCode>39921</PostalCode>
+            <Country>SA</Country>
+        </Branch>
+    </Seller>
+    <Buyer>
+        <Name>الواحة 35</Name>
+        <Location>حفر الباطن</Location>
+        <PostalCode>39913</PostalCode>
+        <Country>SA</Country>
+    </Buyer>
+    <InvoiceDetails>
+        <InvoiceNumber>SO0010</InvoiceNumber>
+        <Date>2025-01-30</Date>
+        <Items>
+            <Item>
+                <Description>Discount</Description>
+                <Amount>0.55</Amount>
+                <TaxRate>15.00</TaxRate>
+                <TotalAmount>2310.01</TotalAmount>
+            </Item>
+            <Item>
+                <Description>EA0016</Description>
+                <Quantity>1</Quantity>
+                <Price>3.0</Price>
+                <TaxAmount>1.35</TaxAmount>
+                <TotalAmount>10.35</TotalAmount>
+            </Item>
+            <Item>
+                <Description>SS0012</Description>
+                <Quantity>2</Quantity>
+                <Price>5.0</Price>
+                <TaxAmount>11.62</TaxAmount>
+                <TotalAmount>89.12</TotalAmount>
+            </Item>
+            <Item>
+                <Description>SS0011</Description>
+                <Quantity>3</Quantity>
+                <Price>25.0</Price>
+                <TaxAmount>24.38</TaxAmount>
+                <TotalAmount>186.87</TotalAmount>
+            </Item>
+            <Item>
+                <Description>SS0014</Description>
+                <Quantity>4</Quantity>
+                <Price>11.0</Price>
+                <TaxAmount>23.1</TaxAmount>
+                <TotalAmount>177.1</TotalAmount>
+            </Item>
+            <Item>
+                <Description>SS0006</Description>
+                <Quantity>5</Quantity>
+                <Price>6.0</Price>
+                <TaxAmount>7.65</TaxAmount>
+                <TotalAmount>58.65</TotalAmount>
+            </Item>
+            <Item>
+                <Description>SS0009</Description>
+                <Quantity>6</Quantity>
+                <Price>5.0</Price>
+                <TaxAmount>10.88</TaxAmount>
+                <TotalAmount>83.37</TotalAmount>
+            </Item>
+            <Item>
+                <Description>DL0013</Description>
+                <Quantity>8</Quantity>
+                <Price>9.5</Price>
+                <TaxAmount>11.4</TaxAmount>
+                <TotalAmount>87.4</TotalAmount>
+            </Item>
+            <Item>
+                <Description>SP0001</Description>
+                <Quantity>9</Quantity>
+                <Price>90.0</Price>
+                <TaxAmount>54.0</TaxAmount>
+                <TotalAmount>414.0</TotalAmount>
+            </Item>
+            <Item>
+                <Description>AP0026</Description>
+                <Quantity>12</Quantity>
+                <Price>18.0</Price>
+                <TaxAmount>59.4</TaxAmount>
+                <TotalAmount>455.4</TotalAmount>
+            </Item>
+        </Items>
+    </InvoiceDetails>
 </Invoice>

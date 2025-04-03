@@ -221,6 +221,25 @@ from . import __version__ as app_version
 # 	"zatca_erpgulf.auth.validate"
 # ]
 
+# schedule for every 10 minutes every day 24 hours
+scheduler_events = {
+    "cron": {
+        "*/10 * * * *": [
+            "zatca_erpgulf.zatca_erpgulf.scheduler_event.submit_invoices_to_zatca_background_process"
+        ]
+    }
+}
+
+
+# # schdule for every 10 minutes from 1 am to 7 am
+# scheduler_events = {
+#     "cron": {
+#         "*/10 1-7 * * * ": [
+#             "zatca_erpgulf.zatca_erpgulf.scheduler_event.submit_invoices_to_zatca_background_process"
+#         ]
+#     }
+# }
+
 doc_events = {
     "Sales Invoice": {
         "before_cancel": "zatca_erpgulf.zatca_erpgulf.validations.before_save",
@@ -236,13 +255,18 @@ doc_events = {
     },
 }
 doctype_js = {
-    "Sales Invoice": ["public/js/our_sales_invoice.js", "public/js/print.js"],
+    "Sales Invoice": [
+        "public/js/our_sales_invoice.js",
+        "public/js/print.js",
+        "public/js/badge.js",
+    ],
     "Company": "public/js/company.js",
-    "POS Invoice": "public/js/our_pos_invoice.js",
+    "POS Invoice": ["public/js/our_pos_invoice.js", "public/js/badge_pos.js"],
 }
 
 doctype_list_js = {
     "Sales Invoice": "public/js/resubmit.js",
+    "POS Invoice": "public/js/resubmitpos.js",
 }
 
 

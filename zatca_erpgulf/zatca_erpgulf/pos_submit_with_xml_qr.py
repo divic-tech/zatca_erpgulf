@@ -1,4 +1,4 @@
-""" This module is used to submit the POS invoice to ZATCA using the API through xml and qr. """
+"""This module is used to submit the POS invoice to ZATCA using the API through xml and qr."""
 
 import frappe
 import requests
@@ -80,7 +80,9 @@ def reporting_api_machine(
 
         # Directly retrieve the production CSID from the company's document field
         if not pos_invoice_doc.custom_zatca_pos_name:
-            frappe.throw(f"ZATCA POS name is missing for invoice {invoice_number}.")
+            frappe.throw(
+                f"ZATCA POS name is missing for invoice resporting {invoice_number}."
+            )
 
         zatca_settings = frappe.get_doc(
             "Zatca Multiple Setting", pos_invoice_doc.custom_zatca_pos_name
@@ -106,15 +108,17 @@ def reporting_api_machine(
 
         try:
             frappe.publish_realtime(
-                "show_gif", {"gif_url": "/assets/zatca_erpgulf/js/loading.gif"}
+                "show_gif",
+                {"gif_url": "/assets/zatca_erpgulf/js/loading.gif"},
+                user=frappe.session.user,
             )
             response = requests.post(
                 url=get_api_url(company_abbr, base_url="invoices/reporting/single"),
                 headers=headers,
                 json=payload,
-                timeout=30,
+                timeout=300,
             )
-            frappe.publish_realtime("hide_gif")
+            frappe.publish_realtime("hide_gif", user=frappe.session.user)
             if response.status_code in (400, 405, 406, 409):
                 invoice_doc = frappe.get_doc("POS Invoice", invoice_number)
                 invoice_doc.db_set(
@@ -255,6 +259,4 @@ def submit_pos_withxmlqr(pos_invoice_doc, file_path, invoice_number):
         )
 
     except Exception as e:
-        frappe.throw(
-            f"Error in submitting POS invoice with xml and qr to ZATCA: {str(e)}"
-        )
+        frappe.throw(f"Error in submitting POS invoice with xml and qr: {str(e)}")
